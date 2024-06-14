@@ -36,7 +36,7 @@
 
 > Ideal for servers isolated from internet
 
-
+![ollarsync tui](https://github.com/mann1x/ollamarsync/blob/main/docs/images/ollamarsync.png?raw=true)
 
 ### Built With
 
