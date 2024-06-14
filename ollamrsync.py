@@ -31,7 +31,7 @@ def optional_dependencies(error: str = "ignore"):
 
 parser = argparse.ArgumentParser(prog='ollamarsync', description="Copy local Ollama models to a remote instance", epilog='Text at the bottom of help')
 parser.add_argument('local_model', type=str,
-                    help='Source local model to copy eg. ')
+                    help='Source local model to copy eg. mistral:latest')
 parser.add_argument('remote_server', type=str,
                     help='Remote ollama server eg. http://192.168.0.100:11434')
 
@@ -59,14 +59,11 @@ def get_platform_separator():
     return "/"
 
 def get_digest_separator():
-    if thisos == "Windows":
-        return "-"
-    return ":"
+    return "-"
 
 def model_base(model_name):
     parts = model_name.split('/', 1)
     if "/" in model_name:
-        print(f"part0 {parts[0]}")
         return parts[0]
     else:
         return ""
