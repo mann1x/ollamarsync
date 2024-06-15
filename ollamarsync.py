@@ -98,6 +98,10 @@ def print_status(json_objects):
         except json.JSONDecodeError:
             continue
 
+def print_lstatus(json_object):
+    data = json.loads(json_object)
+    print(data["status"])
+
 def interrupt_handler(signum, frame):
     print(f"\n\nModel upload aborted, exiting")
     sys.exit(0)
@@ -179,7 +183,7 @@ for layer in data.get('layers', []):
 try:
     result = subprocess.run(["ollama", "show", f"{args.local_model}", "--modelfile"], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, encoding='UTF-8', shell=False, check=True)
     if result.stdout.startswith("Error:"):
-        print(f"Error: could not get ollama Modelfile")    
+        print(f"Error: could not get ollama Modelfile")
     modelfile = parse_modelfile(result.stdout)
     modelfile = model_from + modelfile
 except Exception as e:
@@ -198,12 +202,17 @@ try:
     data = json.dumps(model_create)
 
     try:
-        r = requests.post(f"{args.remote_server}/api/create", headers=headers, data=data)
+        print("Creating model on server...")
+        s = requests.Session()
+
+        with s.post(f"{args.remote_server}/api/create", headers=headers, data=data, stream=True) as r:
+            for line in r.iter_lines():
+                if line:
+                    print_lstatus(line)
     except requests.exceptions.RequestException as e:
         print(f"Error: {e}")
         sys.exit(1)
     if r.status_code == 200:
-        print_status(r.text)
         sys.exit(0)
     else:
         print(f"Error: could not create {args.local_model} on the remote server ({r.status_code}): {r.reason}")
